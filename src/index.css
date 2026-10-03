@@ -88,3 +88,7 @@
 
   --short: #60a5fa;
 }
+
+html {
+  scroll-behavior: smooth;
+}
