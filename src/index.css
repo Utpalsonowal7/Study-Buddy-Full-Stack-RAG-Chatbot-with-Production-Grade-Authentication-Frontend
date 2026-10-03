@@ -1,0 +1,90 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  color-scheme: light;
+
+  --background: #f5f1eb;
+  --foreground: #171717;
+
+  --border: #d6d0c7;
+  --input: #4a4540;
+
+  --shadow: #111;
+  --shadow2: #e1f5f1;
+  --text: #9e9e9e;
+
+  --title: #1a1a1a;
+  --muted: #6b6560;
+
+  --dashText: #1a1815;
+
+  --cardBorder: #c5bfb8;
+  --cardBg: #ece6dd;
+  --navB: #e2dcd4;
+  --dashBg: #faf7f2;
+
+  --linkText: #273144;
+  --short: #2a5bd7;
+
+  --btn: #c51e3a
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-input: var(--input);
+
+  --color-shadow: var(--shadow);
+  --color-shadow2: var(--shadow2);
+  --color-title: var(--title);
+
+  --color-muted: var(--muted);
+
+  --color-cardBorder: var(--cardBorder);
+  --color-cardBg: var(--cardBg);
+
+  --color-navB: var(--navB);
+  --color-dashBg: var(--dashBg);
+
+  --color-dashText: var(--dashText);
+  --color-linkText: var(--linkText);
+  --color-short: var(--short);
+
+  --color-btn: var(--btn)
+}
+
+.dark {
+  color-scheme: dark;
+
+  --background: #0c0a09;
+  --foreground: #ededed;
+
+  --border: #696969;
+
+  --text: #9e9e9e;
+  --input: #bdbdbd;
+
+  --shadow: #545353;
+
+  --shadow2: #9e9e9e;
+  --title: #e8e2d9;
+
+  --muted: #8a8078;
+
+  --cardBorder: #3a3530;
+  --cardBg: #1a1714;
+
+  --dashText: #e8e2d9;
+
+  --navB: #ffffff0a;
+  --dashBg: #151311;
+
+  --linkText: #d8cebb;
+
+  --short: #60a5fa;
+}
