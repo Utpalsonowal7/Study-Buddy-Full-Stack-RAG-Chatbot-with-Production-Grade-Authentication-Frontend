@@ -27,7 +27,6 @@ export default function Register() {
 
   
      const oauth = (provider: "google" | "github") => {
-          console.log("continue with", provider);
           window.location.href = `${import.meta.env.VITE_BACKEND_URL}/auth/${provider}`;
      };
 
