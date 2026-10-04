@@ -1,14 +1,9 @@
-export interface login {
-     email: string;
-     password: string;
-}
-
 export interface User {
      id: string;
      name: string;
      email: string;
      avatar: string | null;
-     isVarified: boolean;
+     isVerified: boolean;
 }
 
 export interface LoginResponse {
@@ -19,5 +14,8 @@ export interface AuthContextType {
      user: User | null;
      loading: boolean;
      isAuthenticated: boolean;
+     requestLoginCode: (email: string) => Promise<void>;
+     login: (email: string, otp: string) => Promise<User>;
+     register: (name: string, email: string, otp: string) => Promise<User>;
      logout: () => Promise<void>;
 }

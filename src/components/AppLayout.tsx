@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, NavLink, Outlet } from "react-router";
+import { useEffect, useState } from "react";
+import { Link, NavLink, Outlet, useNavigate } from "react-router";
 import {
      FiFileText,
      FiHome,
@@ -7,16 +7,13 @@ import {
      FiMessageSquare,
      FiMoon,
      FiPlus,
-     FiSearch,
      FiSettings,
      FiSun,
 } from "react-icons/fi";
 import { useTheme } from "../hooks/useTheme";
-
-// TODO: replace with real data from your API / auth context
-const USER = { name: "Utpal" };
-const RECENT_CHATS = ["DBMS", "Operating Systems", "Computer Networks"];
-const LIBRARY = ["DBMS.pdf", "OS.pdf", "CN Notes.pdf"];
+import { useAuth } from "../hooks/useAuth";
+import { getStudyData } from "../services/mockBackend";
+import type { StudyData } from "../data/mockData";
 
 const navClass = ({ isActive }: { isActive: boolean }) =>
      `flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition ${
@@ -27,8 +24,13 @@ const navClass = ({ isActive }: { isActive: boolean }) =>
 
 export default function AppLayout() {
      const { theme, setTheme } = useTheme();
+     const { user, logout } = useAuth();
+     const navigate = useNavigate();
      const [open, setOpen] = useState(false);
+     const [data, setData] = useState<StudyData | null>(null);
+     useEffect(() => { void getStudyData().then(setData); }, []);
      const close = () => setOpen(false);
+     const signOut = async () => { await logout(); navigate("/", { replace: true }); };
 
      return (
           <div className="flex h-screen bg-background text-muted">
@@ -45,8 +47,8 @@ export default function AppLayout() {
                          open ? "translate-x-0" : "-translate-x-full"
                     }`}
                >
-                    <Link
-                         to="/"
+                         <Link
+                              to="/dashboard"
                          onClick={close}
                          className="flex items-center gap-2.5 px-5 py-4 text-lg font-semibold text-title"
                     >
@@ -101,14 +103,14 @@ export default function AppLayout() {
                               <div className="px-3 pb-1 text-xs font-medium">
                                    Recent chats
                               </div>
-                              {RECENT_CHATS.map((c) => (
+                              {(data?.chats ?? []).slice(0, 4).map((c) => (
                                    <Link
-                                        key={c}
-                                        to="/chat"
+                                        key={c.id}
+                                        to={`/chat/${c.id}`}
                                         onClick={close}
                                         className="block truncate rounded-lg px-3 py-1.5 text-sm transition hover:bg-navB hover:text-title"
                                    >
-                                        {c}
+                                        {c.title}
                                    </Link>
                               ))}
                          </div>
@@ -117,15 +119,15 @@ export default function AppLayout() {
                               <div className="px-3 pb-1 text-xs font-medium">
                                    Library
                               </div>
-                              {LIBRARY.map((d) => (
+                              {(data?.documents ?? []).slice(0, 4).map((d) => (
                                    <Link
-                                        key={d}
+                                        key={d.id}
                                         to="/documents"
                                         onClick={close}
                                         className="flex items-center gap-2 truncate rounded-lg px-3 py-1.5 text-sm transition hover:bg-navB hover:text-title"
                                    >
                                         <FiFileText className="shrink-0" />
-                                        <span className="truncate">{d}</span>
+                                        <span className="truncate">{d.name}</span>
                                    </Link>
                               ))}
                          </div>
@@ -154,14 +156,7 @@ export default function AppLayout() {
                               <FiMenu />
                          </button>
 
-                         <label className="relative flex-1 sm:max-w-md">
-                              <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2" />
-                              <input
-                                   type="search"
-                                   placeholder="Search chats and documents..."
-                                   className="w-full rounded-lg border border-cardBorder bg-dashBg py-2 pl-9 pr-3 text-sm text-title outline-none transition placeholder:text-muted/70 focus:border-short focus:ring-2 focus:ring-short/20"
-                              />
-                         </label>
+                         <Link to="/dashboard" className="text-sm font-medium text-title">Study workspace</Link>
 
                          <div className="ml-auto flex items-center gap-3">
                               <button
@@ -179,11 +174,12 @@ export default function AppLayout() {
                                    {theme === "dark" ? <FiSun /> : <FiMoon />}
                               </button>
                               <span
-                                   title={USER.name}
+                                   title={user?.name ?? "Account"}
                                    className="grid size-9 place-items-center rounded-full bg-short/10 text-sm font-semibold text-short"
                               >
-                                   {USER.name[0]}
+                                   {(user?.name ?? "S")[0].toUpperCase()}
                               </span>
+                              <button type="button" onClick={() => void signOut()} className="hidden rounded-lg px-2 py-1.5 text-sm hover:bg-navB sm:block">Sign out</button>
                          </div>
                     </header>
 

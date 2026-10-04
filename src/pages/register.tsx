@@ -3,6 +3,9 @@ import { Link, useNavigate } from "react-router";
 import { FcGoogle } from "react-icons/fc";
 import { FiCheck, FiGithub, FiMoon, FiSun } from "react-icons/fi";
 import { useTheme } from "../hooks/useTheme";
+import { useAuth } from "../hooks/useAuth";
+import { requestRegistrationOtp, getAuthErrorMessage } from "../services/auth";
+import { backendUrl } from "../api/api";
 
 const POINTS = [
      "Every answer cites the exact page it came from",
@@ -15,6 +18,7 @@ const input =
 
 export default function Register() {
      const { theme, setTheme } = useTheme();
+     const { register } = useAuth();
      const navigate = useNavigate();
 
      const [step, setStep] = useState<"details" | "otp">("details");
@@ -27,7 +31,8 @@ export default function Register() {
 
   
      const oauth = (provider: "google" | "github") => {
-          window.location.href = `${import.meta.env.VITE_BACKEND_URL}/auth/${provider}`;
+          if (!backendUrl) return setError("Set VITE_BACKEND_URL to use social sign-in.");
+          window.location.assign(`${backendUrl}/auth/${provider}`);
      };
 
      const sendCode = async (e: FormEvent) => {
@@ -39,19 +44,24 @@ export default function Register() {
           setError("");
           setLoading(true);
           try {
-               // await api.post("/auth/register/send-otp", { name, email });
+               await requestRegistrationOtp(email);
+               setNotice("We sent a verification code to your email.");
                setStep("otp");
-          } catch {
-               setError("We couldn't send the code. Try again.");
+          } catch (e) {
+               setError(getAuthErrorMessage(e, "We couldn't send the code. Try again."));
           } finally {
                setLoading(false);
           }
      };
 
      const resend = async () => {
-          setError("");
-          // await api.post("/auth/register/send-otp", { name, email });
-          setNotice("A new code is on its way.");
+          setError(""); setNotice(""); setLoading(true);
+          try {
+               await requestRegistrationOtp(email);
+               setNotice("A new verification code was requested.");
+          } catch (e) {
+               setError(getAuthErrorMessage(e, "We couldn't resend the code."));
+          } finally { setLoading(false); }
      };
 
      const verify = async (e: FormEvent) => {
@@ -61,10 +71,10 @@ export default function Register() {
           setError("");
           setLoading(true);
           try {
-               // await api.post("/auth/register/verify-otp", { email, code });
+               await register(name, email, code);
                navigate("/dashboard");
-          } catch {
-               setError("That code is incorrect or has expired.");
+          } catch (e) {
+               setError(getAuthErrorMessage(e, "That code is incorrect or has expired."));
           } finally {
                setLoading(false);
           }
@@ -230,7 +240,7 @@ export default function Register() {
                                         Check your email
                                    </h1>
                                    <div className="mb-7 mt-2">
-                                        We sent a 6-digit code to{" "}
+                                        Enter the 6-digit code sent to{" "}
                                         <b className="font-medium text-title">
                                              {email}
                                         </b>
@@ -249,6 +259,8 @@ export default function Register() {
                                                   inputMode="numeric"
                                                   autoComplete="one-time-code"
                                                   maxLength={6}
+                                                  minLength={6}
+                                                  pattern="[0-9]{6}"
                                                   autoFocus
                                                   value={code}
                                                   onChange={(e) =>
@@ -304,7 +316,7 @@ export default function Register() {
                                         </button>
                                         <button
                                              type="button"
-                                             onClick={resend}
+                                             onClick={() => void resend()}
                                              className="cursor-pointer font-medium text-short transition hover:opacity-80"
                                         >
                                              Resend code

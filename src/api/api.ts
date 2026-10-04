@@ -5,8 +5,10 @@ import type {
      InternalAxiosRequestConfig,
 } from "axios";
 
+export const backendUrl = (import.meta.env.VITE_BACKEND_URL as string | undefined)?.replace(/\/+$/, "");
+
 const api: AxiosInstance = axios.create({
-     baseURL: import.meta.env.VITE_BACKEND_URL,
+     baseURL: backendUrl,
      timeout: 30000,
      withCredentials: true,
 });
