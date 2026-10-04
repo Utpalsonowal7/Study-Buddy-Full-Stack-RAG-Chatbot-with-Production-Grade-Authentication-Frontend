@@ -6,6 +6,7 @@ import Login from "./pages/Login";
 import Chat from "./pages/Chat";
 import Documents from "./pages/Documents";
 import Settings from "./pages/Settings";
+import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./routes/ProtectedRoutes";
 import { Navigate, Route, Routes } from "react-router";
 
@@ -26,6 +27,7 @@ function App() {
                               <Route path="/settings" element={<Settings />} />
                          </Route>
                     </Route>
+                    <Route path="*" element={<NotFound />} />
                </Routes>
           </>
      );
