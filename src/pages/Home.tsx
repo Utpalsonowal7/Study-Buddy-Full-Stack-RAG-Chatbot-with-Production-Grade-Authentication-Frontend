@@ -8,7 +8,8 @@ import {
      FiSun,
 } from "react-icons/fi";
 import { useTheme } from "../hooks/useTheme";
-import { Link } from "react-router";
+import { Link, Navigate } from "react-router";
+import { useAuth } from "../hooks/useAuth";
 
 function Source({ n, topic }: { n: number; topic: string }) {
      return (
@@ -131,6 +132,11 @@ const FEATURES = [
 
 export default function Home() {
      const { theme, setTheme } = useTheme();
+     const { user, loading } = useAuth();
+
+     if (!loading && user) {
+          return <Navigate to="/dashboard" replace />;
+     }
 
      return (
           <div className="w-full text-muted">
