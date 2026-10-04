@@ -1,5 +1,5 @@
 import type { User } from "../types/auth";
-import { getCachedUser, getCurrentUser, logoutUser, registerUser, requestLoginOtp, verifyLoginOtp } from "../services/auth";
+import { getCachedUser, getCurrentUser, logoutUser, registerUser, requestLoginOtp, verifyLoginOtp, verifyRegistrationOtp } from "../services/auth";
 import { AuthContext } from "./AuthContext";
 import type { ReactNode } from "react";
 import { useState,useEffect } from "react";
@@ -44,8 +44,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
         return nextUser;
     };
 
-    const register = async (name: string, email: string, otp: string) => {
-        const nextUser = await registerUser(name, email, otp);
+    const verifyRegistrationCode = async (email: string, otp: string) => {
+        await verifyRegistrationOtp(email, otp);
+    };
+
+    const register = async (name: string, email: string) => {
+        const nextUser = await registerUser(name, email);
         setUser(nextUser);
         return nextUser;
     };
@@ -63,6 +67,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 isAuthenticated: !!user,
                 requestLoginCode,
                 login,
+                verifyRegistrationCode,
                 register,
                 logout,
             }}

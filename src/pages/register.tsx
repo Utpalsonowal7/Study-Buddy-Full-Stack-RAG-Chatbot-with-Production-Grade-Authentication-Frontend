@@ -18,10 +18,10 @@ const input =
 
 export default function Register() {
      const { theme, setTheme } = useTheme();
-     const { register } = useAuth();
+     const { register, verifyRegistrationCode } = useAuth();
      const navigate = useNavigate();
 
-     const [step, setStep] = useState<"details" | "otp">("details");
+     const [step, setStep] = useState<"email" | "otp" | "name">("email");
      const [name, setName] = useState("");
      const [email, setEmail] = useState("");
      const [code, setCode] = useState("");
@@ -37,7 +37,6 @@ export default function Register() {
 
      const sendCode = async (e: FormEvent) => {
           e.preventDefault();
-          if (!name.trim()) return setError("Enter your name.");
           if (!/^\S+@\S+\.\S+$/.test(email))
                return setError("Enter a valid email address.");
 
@@ -71,10 +70,26 @@ export default function Register() {
           setError("");
           setLoading(true);
           try {
-               await register(name, email, code);
-               navigate("/dashboard");
+               await verifyRegistrationCode(email, code);
+               setNotice("Email verified. Add your name to finish creating your account.");
+               setStep("name");
           } catch (e) {
                setError(getAuthErrorMessage(e, "That code is incorrect or has expired."));
+          } finally {
+               setLoading(false);
+          }
+     };
+
+     const finishRegistration = async (e: FormEvent) => {
+          e.preventDefault();
+          if (!name.trim()) return setError("Enter your name.");
+          setError("");
+          setLoading(true);
+          try {
+               await register(name, email);
+               navigate("/dashboard");
+          } catch (e) {
+               setError(getAuthErrorMessage(e, "We couldn't create your account."));
           } finally {
                setLoading(false);
           }
@@ -148,7 +163,7 @@ export default function Register() {
                     </div>
 
                     <div className="m-auto w-full max-w-sm py-10">
-                         {step === "details" ? (
+                         {step === "email" ? (
                               <>
                                    <h1 className="text-3xl font-medium tracking-tight text-title">
                                         Create your account
@@ -188,19 +203,6 @@ export default function Register() {
                                         noValidate
                                    >
                                         <label className="grid gap-1.5 text-sm font-medium text-title">
-                                             Name
-                                             <input
-                                                  type="text"
-                                                  autoComplete="name"
-                                                  value={name}
-                                                  onChange={(e) =>
-                                                       setName(e.target.value)
-                                                  }
-                                                  placeholder="Your name"
-                                                  className={input}
-                                             />
-                                        </label>
-                                        <label className="grid gap-1.5 text-sm font-medium text-title">
                                              Email
                                              <input
                                                   type="email"
@@ -234,7 +236,7 @@ export default function Register() {
                                         </button>
                                    </form>
                               </>
-                         ) : (
+                         ) : step === "otp" ? (
                               <>
                                    <h1 className="text-3xl font-medium tracking-tight text-title">
                                         Check your email
@@ -297,7 +299,7 @@ export default function Register() {
                                         >
                                              {loading
                                                   ? "Verifying..."
-                                                  : "Verify and create account"}
+                                                  : "Verify email"}
                                         </button>
                                    </form>
 
@@ -305,8 +307,9 @@ export default function Register() {
                                         <button
                                              type="button"
                                              onClick={() => {
-                                                  setStep("details");
+                                                  setStep("email");
                                                   setCode("");
+                                                  setName("");
                                                   setError("");
                                                   setNotice("");
                                              }}
@@ -322,6 +325,18 @@ export default function Register() {
                                              Resend code
                                         </button>
                                    </div>
+                              </>
+                         ) : (
+                              <>
+                                   <h1 className="text-3xl font-medium tracking-tight text-title">What should we call you?</h1>
+                                   <div className="mb-7 mt-2">Your email <b className="font-medium text-title">{email}</b> is verified. Add your name to finish registration.</div>
+                                   <form onSubmit={(e) => void finishRegistration(e)} className="grid gap-4" noValidate>
+                                        <label className="grid gap-1.5 text-sm font-medium text-title">Name
+                                             <input type="text" autoComplete="name" autoFocus required value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" className={input} />
+                                        </label>
+                                        {error && <div role="alert" className="text-sm text-red-600 dark:text-red-400">{error}</div>}
+                                        <button type="submit" disabled={loading} className="cursor-pointer rounded-lg bg-short px-4 py-3 font-semibold text-background transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60">{loading ? "Creating account…" : "Create account"}</button>
+                                   </form>
                               </>
                          )}
 

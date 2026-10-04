@@ -41,9 +41,13 @@ export async function requestRegistrationOtp(email: string): Promise<void> {
      await api.post("/auth/send-otp", { email: email.trim().toLowerCase() });
 }
 
-export async function registerUser(name: string, email: string, otp: string): Promise<User> {
+export async function verifyRegistrationOtp(email: string, otp: string): Promise<void> {
      const normalizedEmail = email.trim().toLowerCase();
      await api.post("/auth/verify-otp", { email: normalizedEmail, otp });
+}
+
+export async function registerUser(name: string, email: string): Promise<User> {
+     const normalizedEmail = email.trim().toLowerCase();
      await api.post("/auth/register", { full_name: name.trim(), email: normalizedEmail });
      return getCurrentUser();
 }

@@ -16,6 +16,7 @@ export interface AuthContextType {
      isAuthenticated: boolean;
      requestLoginCode: (email: string) => Promise<void>;
      login: (email: string, otp: string) => Promise<User>;
-     register: (name: string, email: string, otp: string) => Promise<User>;
+     verifyRegistrationCode: (email: string, otp: string) => Promise<void>;
+     register: (name: string, email: string) => Promise<User>;
      logout: () => Promise<void>;
 }
