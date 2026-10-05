@@ -196,7 +196,7 @@ export default function Home() {
                                    material and shows exactly which pages it
                                    used.
                               </div>
-                              <div className="flex flex-wrap gap-3">
+                              <div className="flex  gap-3">
                                    <Link
                                         to="/register"
                                         className="rounded-lg bg-short px-5 py-3 font-semibold text-background transition hover:opacity-90"
