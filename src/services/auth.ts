@@ -5,7 +5,10 @@ import { readStorage, STORAGE_KEYS, writeStorage } from "../data/storage";
 
 function normalizeUser(value: unknown): User {
      const payload = value as Record<string, unknown>;
-     const nested = (payload.user ?? payload.data ?? payload) as Record<string, unknown>;
+     const nested = (payload.user ?? payload.data ?? payload) as Record<
+          string,
+          unknown
+     >;
      return {
           id: String(nested.id ?? nested.user_id ?? nested.email ?? ""),
           name: String(nested.name ?? nested.full_name ?? "Student"),
@@ -15,12 +18,23 @@ function normalizeUser(value: unknown): User {
      };
 }
 
-export function getAuthErrorMessage(error: unknown, fallback: string): string {
+export function getApiErrorMessage(error: unknown, fallback: string): string {
      if (axios.isAxiosError(error)) {
-          const detail = error.response?.data?.detail ?? error.response?.data?.message;
+          const detail =
+               error.response?.data?.detail ?? error.response?.data?.message;
           if (typeof detail === "string") return detail;
-          if (Array.isArray(detail)) return detail.map((item) => item.msg).filter(Boolean).join(" ");
-          if (!error.response) return "The API could not be reached. Check that the backend is running and VITE_BACKEND_URL is correct.";
+          if (Array.isArray(detail)) {
+               const messages = detail
+                    .map((item) => item.msg)
+                    .filter(Boolean)
+                    .join(" ");
+               if (messages) return messages;
+          }
+          if (!error.response)
+               return "The API could not be reached. Check the backend, VITE_BACKEND_URL, and credentialed CORS settings.";
+     }
+     if (error instanceof TypeError && error.message.toLowerCase().includes("fetch")) {
+          return "The API could not be reached. Check the backend, VITE_BACKEND_URL, and credentialed CORS settings.";
      }
      return error instanceof Error ? error.message : fallback;
 }
@@ -41,14 +55,20 @@ export async function requestRegistrationOtp(email: string): Promise<void> {
      await api.post("/auth/send-otp", { email: email.trim().toLowerCase() });
 }
 
-export async function verifyRegistrationOtp(email: string, otp: string): Promise<void> {
+export async function verifyRegistrationOtp(
+     email: string,
+     otp: string,
+): Promise<void> {
      const normalizedEmail = email.trim().toLowerCase();
      await api.post("/auth/verify-otp", { email: normalizedEmail, otp });
 }
 
 export async function registerUser(name: string, email: string): Promise<User> {
      const normalizedEmail = email.trim().toLowerCase();
-     await api.post("/auth/register", { full_name: name.trim(), email: normalizedEmail });
+     await api.post("/auth/register", {
+          full_name: name.trim(),
+          email: normalizedEmail,
+     });
      return getCurrentUser();
 }
 
@@ -56,8 +76,14 @@ export async function requestLoginOtp(email: string): Promise<void> {
      await api.post("/auth/login", { email: email.trim().toLowerCase() });
 }
 
-export async function verifyLoginOtp(email: string, otp: string): Promise<User> {
-     await api.post("/auth/login/verify-otp", { email: email.trim().toLowerCase(), otp });
+export async function verifyLoginOtp(
+     email: string,
+     otp: string,
+): Promise<User> {
+     await api.post("/auth/login/verify-otp", {
+          email: email.trim().toLowerCase(),
+          otp,
+     });
      return getCurrentUser();
 }
 

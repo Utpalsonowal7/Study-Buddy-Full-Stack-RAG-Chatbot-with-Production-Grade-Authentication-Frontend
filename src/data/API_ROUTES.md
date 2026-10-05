@@ -1,46 +1,37 @@
-# Backend routes needed to replace the local demo
+# Study Buddy API integration
 
-The UI currently calls `services/auth.ts` and `services/mockBackend.ts`. The route names below match those service boundaries and can be implemented by the backend; all protected routes should use the authenticated session cookie. JSON responses use the shapes in `mockData.ts` and `types/auth.ts`.
-
-## Authentication
-
-| Method | Route | Request | Response / behavior |
-| --- | --- | --- | --- |
-| `POST` | `/auth/send-otp` | `{ email }` | Send a one-time registration code. |
-| `POST` | `/auth/verify-otp` | `{ email, otp }` | Verify the registration code. |
-| `POST` | `/auth/register` | `{ full_name, email }` | Create account and set session cookies after OTP verification. |
-| `POST` | `/auth/login` | `{ email }` | Send a one-time login code for an existing account. |
-| `POST` | `/auth/login/verify-otp` | `{ email, otp }` | Verify code, set session cookies, and sign in. |
-| `GET` | `/auth/me` | — | `{ user }` for the current session. |
-| `POST` | `/auth/refresh` | — | Refresh session cookie. |
-| `POST` | `/auth/logout` | — | Clear session cookie. |
-| `GET` | `/auth/google` | — | OAuth redirect; callback at `/auth/google/callback`. |
-| `GET` | `/auth/github` | — | OAuth redirect; callback at `/auth/github/callback`. |
+The frontend uses the FastAPI API mounted at `/api/v1`. Set `VITE_BACKEND_URL` to that API base (for example, `http://127.0.0.1:8000/api/v1`). The Axios client sends session cookies with `withCredentials`; the backend must allow the frontend origin with credentials.
 
 ## Documents
 
-| Method | Route | Request | Response / behavior |
-| --- | --- | --- | --- |
-| `GET` | `/documents` | optional `?status=ready` | `{ documents: StudyDocument[] }`. |
-| `POST` | `/documents` | multipart form field `file` | `201 { document }`; begin extraction/indexing. |
-| `GET` | `/documents/:documentId` | — | `{ document }`, including processing status and page count. |
-| `DELETE` | `/documents/:documentId` | — | `204`; remove document and its index. |
+| Method | Route | Frontend behavior |
+| --- | --- | --- |
+| `POST` | `/rag/documents` | Uploads multipart field `file`; accepts PDF, TXT, or Markdown up to 10 MiB. |
+| `GET` | `/rag/documents?offset=0&limit=50` | Lists the authenticated user's documents. Cached in memory for 20 seconds and invalidated after upload/delete. |
+| `GET` | `/rag/documents/{document_id}` | Loads expanded document metadata on demand. |
+| `GET` | `/rag/documents/{document_id}/download` | Gets a signed download URL; cached for up to 55 seconds (the backend URL expires after 60). |
+| `DELETE` | `/rag/documents/{document_id}` | Deletes the document and invalidates list caches. |
 
-## Chats and grounded answers
+The backend indexes uploads before returning the document. The returned document shape is `id`, `filename`, `content_type`, `size_bytes`, `chunk_count`, and `created_at`.
 
-| Method | Route | Request | Response / behavior |
-| --- | --- | --- | --- |
-| `GET` | `/chats` | — | `{ chats: StudyChat[] }`, newest first. |
-| `POST` | `/chats` | `{ title? }` | `201 { chat }`. |
-| `GET` | `/chats/:chatId` | — | `{ chat }` with ordered messages. |
-| `DELETE` | `/chats/:chatId` | — | `204`. |
-| `POST` | `/chats/:chatId/messages` | `{ content, documentIds? }` | `201 { userMessage, assistantMessage }`; assistant response includes citations with document ID, page, and topic. |
+## Chat and conversations
 
-## Profile and preferences
+| Method | Route | Frontend behavior |
+| --- | --- | --- |
+| `POST` | `/rag/chat/stream` | Sends `{ question, conversation_id?, document_ids? }`; streams SSE `meta`, `delta`, `done`, and `error` events. |
+| `POST` | `/rag/chat` | JSON complete-answer endpoint, available for non-stream clients. |
+| `GET` | `/rag/conversations?offset=0&limit=50` | Lists recent conversations; cached in memory for 20 seconds. |
+| `GET` | `/rag/conversations/{conversation_id}/messages?after_id=0&limit=100` | Loads messages and citation snapshots; cached in memory for 30 seconds. |
+| `DELETE` | `/rag/conversations/{conversation_id}` | Deletes a conversation and clears list/message caches. |
 
-| Method | Route | Request | Response / behavior |
-| --- | --- | --- | --- |
-| `GET` | `/users/me` | — | `{ user }`. |
-| `PATCH` | `/users/me` | `{ name?, avatar? }` | `{ user }`. |
+The first chat request omits `conversation_id`; the stream's `meta` and `done` events return the created conversation ID. Follow-up questions send that ID. If document filters are selected, the frontend sends their integer IDs. SSE requests include cookies and retry once after calling `/auth/refresh` when the access cookie is expired.
 
-The demo currently uses local browser storage for authentication and study data. When the backend routes are ready, replace the simulated functions in the two service modules with these calls and set `VITE_BACKEND_URL` to the backend origin. The local demo intentionally persists only user/session and sample metadata; uploaded PDF bytes and extracted text are not retained, and its answers are placeholders rather than model-generated or source-grounded answers.
+## Errors and cache policy
+
+The UI displays FastAPI `detail` messages (including validation errors) and provides retry actions for list, upload, delete, and chat failures. A rejected chat stream does not add a fake answer to the conversation. HTTP 204 delete responses are treated as empty successes.
+
+List and message caches are in-memory only, scoped to the current browser session, and cleared after successful mutations. There is no polling loop; pages revalidate when data changes. Signed download links use a shorter cache lifetime than their server expiry.
+
+## Authentication routes
+
+See the OTP and OAuth request sequence in the repository README. Authentication uses `/auth/send-otp`, `/auth/verify-otp`, `/auth/register`, `/auth/login`, `/auth/login/verify-otp`, `/auth/me`, `/auth/refresh`, `/auth/logout`, `/auth/google`, and `/auth/github` under the same `/api/v1` base.

@@ -1,6 +1,7 @@
 import type { User } from "../types/auth";
 import { getCachedUser, getCurrentUser, logoutUser, registerUser, requestLoginOtp, verifyLoginOtp, verifyRegistrationOtp } from "../services/auth";
 import { AuthContext } from "./AuthContext";
+import { invalidateStudyCaches } from "../services/rag";
 import type { ReactNode } from "react";
 import { useState,useEffect } from "react";
 
@@ -40,6 +41,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     const login = async (email: string, otp: string) => {
         const nextUser = await verifyLoginOtp(email, otp);
+        invalidateStudyCaches(false);
         setUser(nextUser);
         return nextUser;
     };
@@ -50,12 +52,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     const register = async (name: string, email: string) => {
         const nextUser = await registerUser(name, email);
+        invalidateStudyCaches(false);
         setUser(nextUser);
         return nextUser;
     };
 
     const logout = async () => {
         try { await logoutUser(); } catch { /* Clear the local UI session even when the API is unavailable. */ }
+        invalidateStudyCaches(false);
         setUser(null);
     };
 

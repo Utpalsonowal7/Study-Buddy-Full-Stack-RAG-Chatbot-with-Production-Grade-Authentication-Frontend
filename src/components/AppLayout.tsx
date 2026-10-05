@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router";
 import {
      FiFileText,
@@ -12,8 +12,9 @@ import {
 } from "react-icons/fi";
 import { useTheme } from "../hooks/useTheme";
 import { useAuth } from "../hooks/useAuth";
-import { getStudyData } from "../services/mockBackend";
-import type { StudyData } from "../data/mockData";
+import { getStudyData, STUDY_DATA_INVALIDATED } from "../services/rag";
+import { getApiErrorMessage } from "../services/auth";
+import type { StudyData } from "../types/study";
 
 const navClass = ({ isActive }: { isActive: boolean }) =>
      `flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition ${
@@ -28,7 +29,22 @@ export default function AppLayout() {
      const navigate = useNavigate();
      const [open, setOpen] = useState(false);
      const [data, setData] = useState<StudyData | null>(null);
-     useEffect(() => { void getStudyData().then(setData); }, []);
+     const [dataError, setDataError] = useState("");
+     const loadWorkspace = useCallback(async (force = false) => {
+          try { setData(await getStudyData(force)); setDataError(""); }
+          catch (error) { setDataError(getApiErrorMessage(error, "Workspace shortcuts could not be loaded.")); }
+     }, []);
+     useEffect(() => {
+          let mounted = true;
+          void getStudyData().then((workspace) => {
+               if (mounted) { setData(workspace); setDataError(""); }
+          }).catch((error: unknown) => {
+               if (mounted) setDataError(getApiErrorMessage(error, "Workspace shortcuts could not be loaded."));
+          });
+          const refresh = () => { void loadWorkspace(true); };
+          window.addEventListener(STUDY_DATA_INVALIDATED, refresh);
+          return () => { mounted = false; window.removeEventListener(STUDY_DATA_INVALIDATED, refresh); };
+     }, [loadWorkspace]);
      const close = () => setOpen(false);
      const signOut = async () => { await logout(); navigate("/", { replace: true }); };
 
@@ -113,6 +129,7 @@ export default function AppLayout() {
                                         {c.title}
                                    </Link>
                               ))}
+                              {dataError && <button onClick={() => void loadWorkspace(true)} className="px-3 py-1.5 text-left text-xs text-red-700 underline dark:text-red-300">Couldn't load recent chats. Retry</button>}
                          </div>
 
                          <div className="space-y-0.5">

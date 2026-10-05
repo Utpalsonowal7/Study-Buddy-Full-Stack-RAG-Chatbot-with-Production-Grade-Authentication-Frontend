@@ -1,6 +1,5 @@
 export const STORAGE_KEYS = {
      user: "study-buddy:user",
-     data: "study-buddy:data",
 } as const;
 
 export function readStorage<T>(key: string, fallback: T): T {

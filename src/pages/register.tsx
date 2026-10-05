@@ -4,7 +4,7 @@ import { FcGoogle } from "react-icons/fc";
 import { FiCheck, FiGithub, FiMoon, FiSun } from "react-icons/fi";
 import { useTheme } from "../hooks/useTheme";
 import { useAuth } from "../hooks/useAuth";
-import { requestRegistrationOtp, getAuthErrorMessage } from "../services/auth";
+import { requestRegistrationOtp, getApiErrorMessage } from "../services/auth";
 import { backendUrl } from "../api/api";
 
 const POINTS = [
@@ -47,7 +47,7 @@ export default function Register() {
                setNotice("We sent a verification code to your email.");
                setStep("otp");
           } catch (e) {
-               setError(getAuthErrorMessage(e, "We couldn't send the code. Try again."));
+               setError(getApiErrorMessage(e, "We couldn't send the code. Try again."));
           } finally {
                setLoading(false);
           }
@@ -59,7 +59,7 @@ export default function Register() {
                await requestRegistrationOtp(email);
                setNotice("A new verification code was requested.");
           } catch (e) {
-               setError(getAuthErrorMessage(e, "We couldn't resend the code."));
+               setError(getApiErrorMessage(e, "We couldn't resend the code."));
           } finally { setLoading(false); }
      };
 
@@ -74,7 +74,7 @@ export default function Register() {
                setNotice("Email verified. Add your name to finish creating your account.");
                setStep("name");
           } catch (e) {
-               setError(getAuthErrorMessage(e, "That code is incorrect or has expired."));
+               setError(getApiErrorMessage(e, "That code is incorrect or has expired."));
           } finally {
                setLoading(false);
           }
@@ -89,7 +89,7 @@ export default function Register() {
                await register(name, email);
                navigate("/dashboard");
           } catch (e) {
-               setError(getAuthErrorMessage(e, "We couldn't create your account."));
+               setError(getApiErrorMessage(e, "We couldn't create your account."));
           } finally {
                setLoading(false);
           }

@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router";
 import { FcGoogle } from "react-icons/fc";
 import { FiArrowRight, FiBookOpen, FiGithub } from "react-icons/fi";
 import { useAuth } from "../hooks/useAuth";
-import { getAuthErrorMessage } from "../services/auth";
+import { getApiErrorMessage } from "../services/auth";
 import { backendUrl } from "../api/api";
 
 const input =
@@ -38,7 +38,7 @@ export default function Login() {
                setNotice("Check your inbox for the sign-in code.");
           } catch (e) {
                setError(
-                    getAuthErrorMessage(e, "We couldn't send a sign-in code."),
+                    getApiErrorMessage(e, "We couldn't send a sign-in code."),
                );
           } finally {
                setLoading(false);
@@ -53,7 +53,7 @@ export default function Login() {
                navigate("/dashboard", { replace: true });
           } catch (e) {
                setError(
-                    getAuthErrorMessage(e, "That code could not be verified."),
+                    getApiErrorMessage(e, "That code could not be verified."),
                );
           } finally {
                setLoading(false);
@@ -67,7 +67,7 @@ export default function Login() {
                await requestLoginCode(email);
                setNotice("A new code was requested. Check your inbox.");
           } catch (e) {
-               setError(getAuthErrorMessage(e, "We couldn't resend the code."));
+               setError(getApiErrorMessage(e, "We couldn't resend the code."));
           } finally {
                setLoading(false);
           }
