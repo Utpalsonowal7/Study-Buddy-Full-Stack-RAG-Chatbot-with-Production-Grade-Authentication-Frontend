@@ -199,13 +199,13 @@ export default function Home() {
                               <div className="flex  gap-3">
                                    <Link
                                         to="/register"
-                                        className="rounded-lg bg-short px-5 py-3 font-semibold text-background transition hover:opacity-90"
+                                        className="rounded-lg bg-short px-2 py-2 md:px-5 md:py-3 font-semibold text-background transition hover:opacity-90"
                                    >
                                         Get started free
                                    </Link>
                                    <a
                                         href="#how"
-                                        className="rounded-lg border border-cardBorder px-5 py-3 font-semibold text-title transition hover:bg-navB"
+                                        className="rounded-lg border border-cardBorder px-2 py-2 md:px-5 md:py-3 font-semibold text-title transition hover:bg-navB"
                                    >
                                         See how it works
                                    </a>
@@ -318,8 +318,7 @@ export default function Home() {
                <footer className="border-t border-cardBorder">
                     <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-8 text-sm sm:px-8">
                          <span className="flex items-center gap-2">
-                              <StudyBuddyMark size={22} />
-                              © 2026 Study Buddy
+                              <StudyBuddyMark size={22} />© 2026 Study Buddy
                          </span>
                          <span className="flex gap-5">
                               <a
