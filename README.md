@@ -1,30 +1,61 @@
 # Study Buddy
 
-Study Buddy is a React and TypeScript frontend for a personal study workspace. It uses the FastAPI backend for email OTP authentication, document indexing, study chats, citations, and conversation history.
+**Turn your own course materials into source grounded study sessions.**
 
-## Features
+Study Buddy is a full stack RAG study workspace. Learners upload notes and course documents, ask questions in a persistent chat, and follow citations back to the material used in each answer. This repository contains the React frontend; it connects to the companion FastAPI backend for authentication, document indexing, and retrieval augmented chat.
 
-- Public landing page with light and dark themes.
-- Email registration: verify an email OTP, then provide a name to create the account.
-- Email OTP sign-in, plus Google and GitHub OAuth entry points.
-- Protected dashboard, streamed study chat, document library, and account settings.
-- PDF, TXT, and Markdown uploads with indexing progress and document management.
-- Conversation history, document filters, and citations returned by the RAG service.
-- Credentialed session cookies, automatic access-token refresh, in-memory response caching, and API error messages.
+## Product tour
+
+- **Bring your own materials:** Upload PDF, TXT, and Markdown files. Follow upload progress, review indexing details, download files, and remove documents from your library.
+- **Ask questions as you study:** Chat answers stream into the page over server sent events, so learners can read while an answer is being generated.
+- **Check the sources:** Answers include document citations with page or chunk context and expandable excerpts.
+- **Keep studying later:** Conversations and message history are saved by the API and available from the recent chats list.
+- **Sign in with a choice:** Register and sign in with email OTP, or start Google and GitHub OAuth.
+- **Use it comfortably:** Responsive layouts, light and dark themes, protected account pages, and clear loading, empty, and error states support the full workflow.
+
+## How it works
+
+```mermaid
+flowchart LR
+    Learner[Learner] --> UI[React study workspace]
+    UI -->|Email OTP or OAuth| Auth[FastAPI authentication API]
+    UI -->|Upload PDF, TXT, or MD| RAG[FastAPI RAG API]
+    RAG -->|Index document| Library[User document library]
+    UI -->|Question and optional document filters| RAG
+    RAG -->|SSE answer deltas, citations, and conversation ID| UI
+    UI -->|Load history and sources| RAG
+```
+
+The browser sends authenticated requests to the API under `/api/v1`. Documents are indexed by the backend. Chat requests go to `POST /rag/chat/stream`; the frontend reads the SSE stream, renders answer deltas, and keeps the returned conversation ID for the next question. The complete endpoint contract is in [`src/data/API_ROUTES.md`](src/data/API_ROUTES.md).
+
+## Engineering highlights
+
+- **Streaming without a chat SDK:** The chat service reads the SSE response, handles `meta`, `delta`, `done`, and `error` events, supports aborting a request, and rejects incomplete streams instead of showing an unsaved answer as complete.
+- **Cookie based session flow:** API calls include credentials. A shared Axios interceptor refreshes expired sessions and retries queued requests; the chat stream performs the equivalent refresh before retrying its fetch request.
+- **Fast, bounded client caching:** In-flight list requests are shared. Documents and conversations are cached in memory for 20 seconds, messages for 30 seconds, and expiring download links for at most 55 seconds. Uploads and deletes invalidate affected data.
+- **Useful failure states:** API validation and backend detail messages are surfaced to the learner with retry actions where appropriate. The public landing and sign-in routes remain available when the API is offline.
+- **Safer file handling:** The frontend accepts PDF, TXT, and Markdown files up to 10 MiB and sends them as multipart form data. Session credentials are sent as cookies rather than stored in browser local storage.
+- **Readable study answers:** Markdown inline emphasis and code are formatted; fenced code blocks include language labels, syntax colors, and a copy action.
 
 ## Tech stack
 
-- React 19 and TypeScript
-- Vite
-- React Router
-- Tailwind CSS 4
-- Axios
-- Oxlint
+| Area | Tools |
+| --- | --- |
+| UI | React 19, TypeScript |
+| Build | Vite |
+| Routing | React Router |
+| Styling | Tailwind CSS 4 |
+| API | Axios for JSON requests; Fetch streams for SSE |
+| Code quality | TypeScript, Oxlint |
 
-## Requirements and setup
+## Run locally
+
+### Prerequisites
 
 - Node.js and npm
-- The Study Buddy FastAPI backend running and reachable from the browser
+- The companion Study Buddy FastAPI backend running locally or on a reachable host
+
+### Start the frontend
 
 1. Install dependencies from the repository root:
 
@@ -32,81 +63,79 @@ Study Buddy is a React and TypeScript frontend for a personal study workspace. I
    npm install
    ```
 
-2. Create a `.env` file beside `package.json` with the versioned API base URL:
+2. Create `.env` beside `package.json` and point it at the backend's versioned API base URL:
 
    ```dotenv
    VITE_BACKEND_URL=http://127.0.0.1:8000/api/v1
    ```
 
-   Change the origin if your backend runs elsewhere. Restart Vite after changing this value.
+   Change the origin to match your backend and restart Vite after editing `.env`.
 
-3. Configure backend CORS to allow the frontend origin and credentials. Authentication and RAG requests use HTTP-only session cookies.
+3. Configure backend CORS to allow the frontend origin and credentials. The authentication flow uses HTTP only session cookies.
 
-4. Start the frontend:
+4. Start Vite:
 
    ```bash
    npm run dev
    ```
 
-   Open the local URL printed by Vite, usually `http://localhost:5173`.
+   Open the local URL Vite prints, commonly `http://localhost:5173`.
 
-## Useful commands
+The landing page can render without a running backend. Authentication, uploads, and study data need the API to be reachable; if it is not, the app reports the request failure in the relevant view.
 
-```bash
-npm run dev      # Start the development server
-npm run build    # Type-check and create a production build
-npm run preview  # Preview the production build
-npm run lint     # Run Oxlint
-```
-
-## Authentication flow
+## Main user flows
 
 ### Register with email
 
-1. Enter an email address; the frontend calls `POST /auth/send-otp`.
-2. Enter the emailed code; the frontend calls `POST /auth/verify-otp`.
+1. Submit an email address; the frontend calls `POST /auth/send-otp`.
+2. Verify the emailed code with `POST /auth/verify-otp`.
 3. Enter a name; the frontend calls `POST /auth/register` with `{ "email": "...", "full_name": "..." }`.
-4. The frontend loads the authenticated account from `GET /auth/me` and opens the dashboard.
+4. Load the signed in user from `GET /auth/me` and open the dashboard.
 
 ### Sign in with email
 
-1. Enter the account email; the frontend calls `POST /auth/login` to send an OTP.
-2. Enter the code; the frontend calls `POST /auth/login/verify-otp`.
-3. The frontend loads `GET /auth/me` and opens the dashboard.
+1. Submit an account email to `POST /auth/login` to request an OTP.
+2. Verify it with `POST /auth/login/verify-otp`.
+3. Load the current user and continue to the dashboard.
 
-Google and GitHub buttons navigate to `/auth/google` and `/auth/github`. Axios sends credentials and refreshes expired sessions through `POST /auth/refresh`. Signing out calls `POST /auth/logout`.
+Google and GitHub sign in start at `/auth/google` and `/auth/github`. Signing out calls `/auth/logout`; expired sessions use `/auth/refresh`.
 
-## Study data flow
+### Study with documents
 
-Documents are uploaded to `POST /rag/documents` as multipart field `file`, listed from `GET /rag/documents`, and deleted with `DELETE /rag/documents/{document_id}`. The browser validates supported PDF, TXT, and Markdown files up to 10 MiB before upload. The backend indexes each upload.
-
-Chat questions stream from `POST /rag/chat/stream` using server-sent events. The page renders answer deltas and citations as they arrive, then keeps the returned conversation ID for follow-up questions. Conversation lists and message history use the `/rag/conversations` routes. API failures show backend error details where available and offer retry actions.
-
-Document and conversation lists are cached in memory for 20 seconds, messages for 30 seconds, and signed download URLs for at most 55 seconds. Successful mutations invalidate related caches. The complete route contract is in [`src/data/API_ROUTES.md`](src/data/API_ROUTES.md).
+Upload a document from the library, then ask a question in chat. Questions can target the whole library or up to 20 selected documents. The response streams into the conversation with citations and source excerpts. The learner can revisit or delete saved conversations from the chat list.
 
 ## Frontend routes
 
 | Route | Page | Access |
 | --- | --- | --- |
-| `/` | Landing page | Public |
-| `/register` | Email registration | Public |
-| `/login` | Email OTP sign-in | Public |
-| `/dashboard` | Study overview | Authenticated |
-| `/chat` and `/chat/:chatId` | Study conversations | Authenticated |
-| `/documents` | Document library | Authenticated |
-| `/settings` | Account and appearance | Authenticated |
+| `/` | Product landing page | Public |
+| `/register` | Email OTP registration | Public |
+| `/login` | Email OTP and social sign in | Public |
+| `/dashboard` | Study overview | Signed in |
+| `/chat` and `/chat/:chatId` | Streaming study conversations | Signed in |
+| `/documents` | Document library | Signed in |
+| `/settings` | Account and appearance | Signed in |
 
-## Project structure
+## Project layout
 
 ```text
 src/
-  api/          Axios client and session refresh handling
-  components/   Shared application layout
-  context/      Authentication context and provider
-  data/         API route notes and non-server state helpers
+  api/          HTTP client, credentials, and session refresh
+  components/   Shared layout and chat message rendering
+  context/      Authentication state and provider
+  data/         API route reference and local UI preferences
   hooks/        Authentication and theme hooks
-  pages/        Landing, auth, dashboard, chat, documents, settings
-  routes/       Protected route handling
+  pages/        Landing, sign in, registration, dashboard, chat, library, settings
+  routes/       Protected routes and not found handling
   services/     Authentication and RAG API operations
-  types/        Shared TypeScript types
+  types/        Shared API and study domain types
+```
+
+## Development commands
+
+```bash
+npm run dev      # Start the Vite development server
+npm run lint     # Run Oxlint
+npm run build    # Type check and create the production bundle
+npm run preview  # Preview the production bundle locally
 ```
