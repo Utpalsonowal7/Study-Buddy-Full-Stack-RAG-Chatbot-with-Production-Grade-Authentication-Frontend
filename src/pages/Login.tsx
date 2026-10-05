@@ -5,6 +5,7 @@ import { FiArrowRight, FiBookOpen, FiGithub } from "react-icons/fi";
 import { useAuth } from "../hooks/useAuth";
 import { getApiErrorMessage } from "../services/auth";
 import { backendUrl } from "../api/api";
+import StudyBuddyLogo from "../components/StudyBuddyLogo";
 
 const input =
      "w-full rounded-lg border border-cardBorder bg-background px-3.5 py-2.5 text-title outline-none transition placeholder:text-muted/60 focus:border-short focus:ring-2 focus:ring-short/20";
@@ -76,15 +77,7 @@ export default function Login() {
      return (
           <main className="grid min-h-screen text-muted lg:grid-cols-2">
                <aside className="hidden flex-col justify-between border-r border-cardBorder bg-cardBg p-12 lg:flex">
-                    <Link
-                         to="/"
-                         className="flex items-center gap-2.5 text-lg font-semibold text-title"
-                    >
-                         <span className="grid size-7 place-items-center rounded-lg bg-short text-background">
-                              S
-                         </span>
-                         Study Buddy
-                    </Link>
+                    <Link to="/" className="text-lg"><StudyBuddyLogo size={32} /></Link>
                     <div className="max-w-md">
                          <span className="grid size-12 place-items-center rounded-xl bg-short/10 text-2xl text-short">
                               <FiBookOpen />
@@ -100,15 +93,7 @@ export default function Login() {
                     <p className="text-sm">A quieter way to make progress.</p>
                </aside>
                <section className="flex flex-col px-5 py-6 sm:px-8">
-                    <Link
-                         to="/"
-                         className="flex items-center gap-2 font-semibold text-title lg:invisible"
-                    >
-                         <span className="grid size-7 place-items-center rounded-lg bg-short text-background">
-                              S
-                         </span>
-                         Study Buddy
-                    </Link>
+                    <Link to="/" className="lg:invisible"><StudyBuddyLogo size={30} /></Link>
                     <div className="m-auto w-full max-w-sm py-12">
                          {step === "email" ? (
                               <>

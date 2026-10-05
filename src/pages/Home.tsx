@@ -10,6 +10,7 @@ import {
 import { useTheme } from "../hooks/useTheme";
 import { Link, Navigate } from "react-router";
 import { useAuth } from "../hooks/useAuth";
+import StudyBuddyLogo, { StudyBuddyMark } from "../components/StudyBuddyLogo";
 
 function Source({ n, topic }: { n: number; topic: string }) {
      return (
@@ -47,9 +48,7 @@ function ChatPreview() {
 
                     <div>
                          <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-title">
-                              <span className="grid size-5 place-items-center rounded-md bg-short text-[11px] font-bold text-background">
-                                   S
-                              </span>
+                              <StudyBuddyMark size={24} />
                               Study Buddy
                          </div>
                          <div className="leading-relaxed text-dashText">
@@ -143,14 +142,8 @@ export default function Home() {
                {/* Nav */}
                <nav className="sticky top-0 z-10 border-b border-cardBorder bg-background/85 backdrop-blur">
                     <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3.5 sm:px-8">
-                         <Link
-                              to="/"
-                              className="flex items-center gap-2.5 text-lg font-semibold text-title"
-                         >
-                              <span className="grid size-7 place-items-center rounded-lg bg-short text-[15px] font-bold text-background">
-                                   S
-                              </span>
-                              Study Buddy
+                         <Link to="/" className="text-lg">
+                              <StudyBuddyLogo size={32} />
                          </Link>
                          <div className="flex items-center gap-6">
                               <a
@@ -325,9 +318,7 @@ export default function Home() {
                <footer className="border-t border-cardBorder">
                     <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-8 text-sm sm:px-8">
                          <span className="flex items-center gap-2">
-                              <span className="grid size-5 place-items-center rounded-md bg-short text-[11px] font-bold text-background">
-                                   S
-                              </span>
+                              <StudyBuddyMark size={22} />
                               © 2026 Study Buddy
                          </span>
                          <span className="flex gap-5">

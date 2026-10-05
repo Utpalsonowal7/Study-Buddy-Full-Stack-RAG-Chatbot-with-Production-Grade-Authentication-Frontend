@@ -1,13 +1,13 @@
 import { Link } from "react-router";
 import { FiArrowLeft, FiHome } from "react-icons/fi";
+import StudyBuddyLogo from "../components/StudyBuddyLogo";
 
 export default function NotFound() {
      return (
           <main className="grid min-h-screen place-items-center bg-background px-5 py-12 text-muted">
                <section className="w-full max-w-lg text-center">
-                    <Link to="/" className="mx-auto flex w-fit items-center gap-2.5 text-lg font-semibold text-title">
-                         <span className="grid size-8 place-items-center rounded-lg bg-short text-background">S</span>
-                         Study Buddy
+                    <Link to="/" className="mx-auto block w-fit text-lg">
+                         <StudyBuddyLogo size={36} />
                     </Link>
                     <p className="mt-14 text-sm font-semibold uppercase tracking-[0.2em] text-short">404 · Page not found</p>
                     <h1 className="mt-4 text-4xl font-medium tracking-tight text-title sm:text-5xl">We can’t find that page.</h1>

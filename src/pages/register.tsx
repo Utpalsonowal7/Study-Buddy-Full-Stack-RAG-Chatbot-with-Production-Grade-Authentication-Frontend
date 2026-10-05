@@ -6,6 +6,7 @@ import { useTheme } from "../hooks/useTheme";
 import { useAuth } from "../hooks/useAuth";
 import { requestRegistrationOtp, getApiErrorMessage } from "../services/auth";
 import { backendUrl } from "../api/api";
+import StudyBuddyLogo from "../components/StudyBuddyLogo";
 
 const POINTS = [
      "Every answer cites the exact page it came from",
@@ -99,15 +100,7 @@ export default function Register() {
           <div className="grid min-h-screen text-muted lg:grid-cols-2">
                {/* Left: pitch */}
                <aside className="hidden flex-col justify-between border-r border-cardBorder bg-cardBg p-12 lg:flex">
-                    <Link
-                         to="/"
-                         className="flex items-center gap-2.5 text-lg font-semibold text-title"
-                    >
-                         <span className="grid size-7 place-items-center rounded-lg bg-short text-[15px] font-bold text-background">
-                              S
-                         </span>
-                         Study Buddy
-                    </Link>
+                    <Link to="/" className="text-lg"><StudyBuddyLogo size={32} /></Link>
 
                     <div className="max-w-md">
                          <h2 className="text-4xl font-medium leading-[1.1] tracking-tight text-title">
@@ -141,15 +134,7 @@ export default function Register() {
                {/* Right: form */}
                <main className="flex flex-col px-5 py-6 sm:px-8">
                     <div className="flex items-center justify-between">
-                         <Link
-                              to="/"
-                              className="flex items-center gap-2.5 font-semibold text-title lg:invisible"
-                         >
-                              <span className="grid size-7 place-items-center rounded-lg bg-short text-[15px] font-bold text-background">
-                                   S
-                              </span>
-                              Study Buddy
-                         </Link>
+                         <Link to="/" className="lg:invisible"><StudyBuddyLogo size={30} /></Link>
                          <button
                               type="button"
                               onClick={() =>

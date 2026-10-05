@@ -15,6 +15,7 @@ import { useAuth } from "../hooks/useAuth";
 import { getStudyData, STUDY_DATA_INVALIDATED } from "../services/rag";
 import { getApiErrorMessage } from "../services/auth";
 import type { StudyData } from "../types/study";
+import StudyBuddyLogo from "./StudyBuddyLogo";
 
 const navClass = ({ isActive }: { isActive: boolean }) =>
      `flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition ${
@@ -63,15 +64,8 @@ export default function AppLayout() {
                          open ? "translate-x-0" : "-translate-x-full"
                     }`}
                >
-                         <Link
-                              to="/dashboard"
-                         onClick={close}
-                         className="flex items-center gap-2.5 px-5 py-4 text-lg font-semibold text-title"
-                    >
-                         <span className="grid size-7 place-items-center rounded-lg bg-short text-[15px] font-bold text-background">
-                              S
-                         </span>
-                         Study Buddy
+                    <Link to="/dashboard" onClick={close} className="px-5 py-4 text-lg">
+                         <StudyBuddyLogo size={30} />
                     </Link>
 
                     <div className="px-3">
