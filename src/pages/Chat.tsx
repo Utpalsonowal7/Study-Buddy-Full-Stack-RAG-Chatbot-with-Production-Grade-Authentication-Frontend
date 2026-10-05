@@ -4,6 +4,7 @@ import { FiArrowUp, FiBookOpen, FiFileText, FiMessageSquare, FiPlus, FiTrash2 } 
 import type { ChatMessage, StudyChat, StudyData } from "../types/study";
 import { deleteConversation, getConversationMessages, getStudyData, streamQuestion } from "../services/rag";
 import { getApiErrorMessage } from "../services/auth";
+import ChatMessageContent from "../components/ChatMessageContent";
 
 const temporaryId = () => `pending-${crypto.randomUUID()}`;
 
@@ -111,7 +112,7 @@ export default function Chat() {
                <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-8"><div className="mx-auto max-w-3xl space-y-7">
                     {loading ? <p className="py-16 text-center text-sm">Loading your conversation…</p> : messages.length ? messages.map((message) => <article key={message.id} className={message.role === "user" ? "ml-auto max-w-[85%] rounded-2xl rounded-br-sm bg-short/10 px-4 py-3 text-title" : "max-w-3xl"}>
                          {message.role === "assistant" && <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-title"><span className="grid size-6 place-items-center rounded-md bg-short text-xs text-background">S</span>Study Buddy</div>}
-                         <p className="whitespace-pre-wrap leading-relaxed">{message.content || (sending ? "Thinking…" : "")}</p>
+                         <ChatMessageContent content={message.content || (sending ? "Thinking…" : "")} />
                          {message.citations.map((citation, index) => <details key={`${message.id}-${index}`} className="mt-3 rounded-lg border border-cardBorder bg-dashBg text-xs"><summary className="flex cursor-pointer list-none items-center gap-2 px-3 py-2"><FiBookOpen className="text-short" /><span className="font-medium text-title">[{citation.citation}] {citation.documentName}</span><span>{citation.page ? `Page ${citation.page}` : `Chunk ${citation.chunk}`}</span></summary><p className="border-t border-cardBorder px-3 py-2 leading-relaxed">{citation.text}</p></details>)}
                     </article>) : <div className="mx-auto max-w-xl py-16 text-center"><span className="mx-auto grid size-14 place-items-center rounded-2xl bg-short/10 text-2xl text-short"><FiBookOpen /></span><h2 className="mt-5 text-2xl font-medium text-title">Study with your own materials</h2><p className="mt-2">Ask a question below. Answers are streamed from your documents with source citations.</p><div className="mt-6 flex flex-wrap justify-center gap-2">{["Explain the key idea in my notes", "Summarize my document", "What should I revise first?"].map((prompt) => <button key={prompt} onClick={() => setQuestion(prompt)} className="rounded-full border border-cardBorder px-3 py-2 text-sm hover:border-short/50 hover:text-title">{prompt}</button>)}</div>{!data?.documents.length && <Link to="/documents" className="mt-5 inline-block text-sm font-medium text-short hover:underline">Upload a document to get started</Link>}</div>}
                     <div ref={bottom} />
