@@ -30,55 +30,114 @@ function Source({ n, topic }: { n: number; topic: string }) {
 
 function ChatPreview() {
      return (
-          <div
-               aria-label="Example conversation"
-               className="overflow-hidden rounded-2xl border border-cardBorder bg-dashBg shadow-xl shadow-shadow/10"
-          >
-               <div className="flex items-center gap-1.5 border-b border-cardBorder bg-navB px-4 py-3">
-                    <i className="size-2.5 rounded-full bg-amber-600" />
-                    <i className="size-2.5 rounded-full bg-amber-200" />
-                    <i className="size-2.5 rounded-full bg-emerald-500" />
-                    <span className="ml-2 text-[13px]">Operating Systems</span>
-               </div>
+          <div className="[perspective:1400px] [perspective-origin:50%_40%] py-6">
+               <div
+                    aria-label="Example conversation"
+                    className="
+                         group relative
+                         [transform-style:preserve-3d]
+                         [transform:rotateX(14deg)_rotateY(-22deg)_rotateZ(4deg)]
+                         transition-transform duration-700 ease-out
+                         hover:[transform:rotateX(0deg)_rotateY(0deg)_rotateZ(0deg)]
+                    "
+               >
+                    
+                    <div
+                         className="
+                              absolute inset-0 rounded-2xl border border-cardBorder bg-cardBg/40
+                              shadow-xl shadow-shadow/10
+                              [transform:translate3d(28px,28px,-90px)]
+                              transition-transform duration-700
+                              group-hover:[transform:translate3d(10px,10px,-20px)]
+                         "
+                    />
 
-               <div className="space-y-5 p-5">
-                    <div className="ml-auto w-fit max-w-[85%] rounded-xl rounded-br-sm bg-short/10 px-4 py-2.5 text-dashText">
-                         What is round-robin scheduling?
-                    </div>
+                  
+                    <div
+                         className="
+                              absolute inset-0 rounded-2xl border border-cardBorder bg-cardBg/70
+                              shadow-xl shadow-shadow/10
+                              [transform:translate3d(14px,14px,-45px)]
+                              transition-transform duration-700
+                              group-hover:[transform:translate3d(5px,5px,-10px)]
+                         "
+                    />
 
-                    <div>
-                         <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-title">
-                              <StudyBuddyMark size={24} />
-                              Study Buddy
+                  
+                    <div
+                         className="
+                              relative overflow-hidden rounded-2xl border border-cardBorder
+                              bg-dashBg shadow-2xl shadow-shadow/20
+                         "
+                    >
+                         <div className="flex items-center gap-1.5 border-b border-cardBorder bg-navB px-4 py-3">
+                              <i className="size-2.5 rounded-full bg-amber-600" />
+                              <i className="size-2.5 rounded-full bg-amber-200" />
+                              <i className="size-2.5 rounded-full bg-emerald-500" />
+                              <span className="ml-2 text-[13px]">
+                                   Operating Systems
+                              </span>
                          </div>
-                         <div className="leading-relaxed text-dashText">
-                              Each process gets a fixed slice of CPU time,
-                              called a{" "}
-                              <code className="rounded bg-cardBg px-1.5 py-0.5 font-mono text-sm">
-                                   time quantum
-                              </code>
-                              .
-                              <sup className="ml-0.5 font-semibold text-short">
-                                   1
-                              </sup>{" "}
-                              When it runs out, the process goes to the back of
-                              the ready queue.
-                              <sup className="ml-0.5 font-semibold text-short">
-                                   2
-                              </sup>
+
+                         <div className="space-y-5 p-5">
+                              <div className="ml-auto w-fit max-w-[85%] rounded-xl rounded-br-sm bg-short/10 px-4 py-2.5 text-dashText">
+                                   What is round-robin scheduling?
+                              </div>
+
+                              <div>
+                                   <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-title">
+                                        <StudyBuddyMark size={24} />
+                                        Study Buddy
+                                   </div>
+                                   <div className="leading-relaxed text-dashText">
+                                        Each process gets a fixed slice of CPU
+                                        time, called a{" "}
+                                        <code className="rounded bg-cardBg px-1.5 py-0.5 font-mono text-sm">
+                                             time quantum
+                                        </code>
+                                        .
+                                        <sup className="ml-0.5 font-semibold text-short">
+                                             1
+                                        </sup>{" "}
+                                        When it runs out, the process goes to
+                                        the back of the ready queue.
+                                        <sup className="ml-0.5 font-semibold text-short">
+                                             2
+                                        </sup>
+                                   </div>
+                              </div>
+
+                              <div className="space-y-2">
+                                   <Source
+                                        n={1}
+                                        topic="Page 42 · CPU Scheduling"
+                                   />
+                                   <Source
+                                        n={2}
+                                        topic="Page 43 · Round Robin"
+                                   />
+                              </div>
+
+                              <div className="flex items-center justify-between rounded-xl border border-cardBorder bg-background py-2 pl-4 pr-2 text-sm">
+                                   Ask about your study material...
+                                   <span className="grid size-7 place-items-center rounded-lg bg-short text-background">
+                                        <FiArrowUp />
+                                   </span>
+                              </div>
                          </div>
                     </div>
 
-                    <div className="space-y-2">
-                         <Source n={1} topic="Page 42 · CPU Scheduling" />
-                         <Source n={2} topic="Page 43 · Round Robin" />
-                    </div>
-
-                    <div className="flex items-center justify-between rounded-xl border border-cardBorder bg-background py-2 pl-4 pr-2 text-sm">
-                         Ask about your study material...
-                         <span className="grid size-7 place-items-center rounded-lg bg-short text-background">
-                              <FiArrowUp />
-                         </span>
+                    <div
+                         className="
+                              absolute -right-4 top-24 hidden sm:flex items-center gap-2
+                              rounded-lg border border-cardBorder bg-background px-3 py-2
+                              text-xs font-semibold text-short shadow-xl shadow-shadow/30
+                              [transform:translateZ(70px)]
+                              transition-transform duration-700
+                              group-hover:[transform:translateZ(0px)]
+                         "
+                    >
+                         <FiFileText /> Page 42 verified
                     </div>
                </div>
           </div>
@@ -210,9 +269,7 @@ export default function Home() {
                                         See how it works
                                    </a>
                               </div>
-                              <div className="mt-5 text-sm">
-                                   Sign in with Google, GitHub or an email code.
-                              </div>
+                          
                          </div>
                          <ChatPreview />
                     </div>
