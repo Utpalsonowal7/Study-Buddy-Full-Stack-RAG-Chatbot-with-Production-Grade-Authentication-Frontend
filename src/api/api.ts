@@ -1,4 +1,5 @@
 import axios from "axios";
+import { isProtectedPath } from "../routes/paths";
 import type {
      AxiosError,
      AxiosInstance,
@@ -17,8 +18,6 @@ const refreshEndpointApi: AxiosInstance = axios.create({
      baseURL: backendUrl,
      withCredentials: true,
 });
-
-const publicRoutes = ["/", "/login", "/register", "/er"];
 
 interface FailedQueueResponse {
      resolve: () => void;
@@ -81,7 +80,7 @@ api.interceptors.response.use(
           } catch (refreshError) {
                processQueue(refreshError);
 
-               if (!publicRoutes.includes(window.location.pathname)) {
+               if (isProtectedPath(window.location.pathname)) {
                     window.location.replace("/");
                }
 

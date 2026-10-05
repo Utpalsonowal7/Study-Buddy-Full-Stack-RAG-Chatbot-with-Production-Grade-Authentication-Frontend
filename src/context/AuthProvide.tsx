@@ -4,6 +4,7 @@ import { AuthContext } from "./AuthContext";
 import { invalidateStudyCaches } from "../services/rag";
 import type { ReactNode } from "react";
 import { useState,useEffect } from "react";
+import { isProtectedPath } from "../routes/paths";
 
 interface AuthProviderProps {
      children: ReactNode;
@@ -15,7 +16,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     useEffect(() => {
         const restoreSession = async () => {
-            const publicPage = ["/", "/login", "/register"].includes(window.location.pathname);
+            const publicPage = !isProtectedPath(window.location.pathname);
             if (publicPage) {
                 setUser(await getCachedUser());
                 setLoading(false);
