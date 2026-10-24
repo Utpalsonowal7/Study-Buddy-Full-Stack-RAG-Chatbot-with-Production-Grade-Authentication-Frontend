@@ -8,9 +8,13 @@ import {
      FiSun,
 } from "react-icons/fi";
 import { useTheme } from "../hooks/useTheme";
+import { useEffect, useState } from "react";
 import { Link, Navigate } from "react-router";
 import { useAuth } from "../hooks/useAuth";
 import StudyBuddyLogo, { StudyBuddyMark } from "../components/StudyBuddyLogo";
+import api from "../api/api";
+import InfoModel from "../components/InfoModel";
+import { FaGithub } from "react-icons/fa";
 
 function Source({ n, topic }: { n: number; topic: string }) {
      return (
@@ -30,7 +34,7 @@ function Source({ n, topic }: { n: number; topic: string }) {
 
 function ChatPreview() {
      return (
-          <div className="[perspective:1400px] [perspective-origin:50%_40%] py-6">
+          <div className="[perspective:1400px] [perspective-origin:50%_40%] py-6 ">
                <div
                     aria-label="Example conversation"
                     className="
@@ -41,7 +45,6 @@ function ChatPreview() {
                          hover:[transform:rotateX(0deg)_rotateY(0deg)_rotateZ(0deg)]
                     "
                >
-                    
                     <div
                          className="
                               absolute inset-0 rounded-2xl border border-cardBorder bg-cardBg/40
@@ -52,7 +55,6 @@ function ChatPreview() {
                          "
                     />
 
-                  
                     <div
                          className="
                               absolute inset-0 rounded-2xl border border-cardBorder bg-cardBg/70
@@ -63,7 +65,6 @@ function ChatPreview() {
                          "
                     />
 
-                  
                     <div
                          className="
                               relative overflow-hidden rounded-2xl border border-cardBorder
@@ -191,13 +192,41 @@ const FEATURES = [
 export default function Home() {
      const { theme, setTheme } = useTheme();
      const { user, loading } = useAuth();
+     const [showModal, setShowModal] = useState<boolean>(false);
+
+     useEffect(() => {
+          let timer: ReturnType<typeof setTimeout> | undefined;
+          async function fetchHealth() {
+               try {
+                    const res = await api.get("/health");
+
+                    if (res.data.status !== "ok") {
+                         setShowModal(true);
+
+                         timer = setTimeout(() => {
+                              setShowModal(false);
+                         }, 5000);
+                    }
+               } catch (error) {
+                    setShowModal(true);
+                    timer = setTimeout(() => {
+                         setShowModal(false);
+                    }, 5000);
+               }
+          }
+
+          fetchHealth();
+
+          return () => clearInterval(timer);
+     }, []);
 
      if (!loading && user) {
           return <Navigate to="/dashboard" replace />;
      }
 
+     console.log(showModal);
      return (
-          <div className="w-full text-muted">
+          <div className="w-full text-muted relative">
                {/* Nav */}
                <nav className="sticky top-0 z-10 border-b border-cardBorder bg-background/85 backdrop-blur">
                     <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3.5 sm:px-8">
@@ -237,6 +266,12 @@ export default function Home() {
                               >
                                    Sign in
                               </Link>
+                              <a
+                                   href="https://l.utpx.in/stdy-git"
+                                   target="blank"
+                              >
+                                   <FaGithub size={22} />
+                              </a>
                          </div>
                     </div>
                </nav>
@@ -269,7 +304,6 @@ export default function Home() {
                                         See how it works
                                    </a>
                               </div>
-                          
                          </div>
                          <ChatPreview />
                     </div>
@@ -399,6 +433,11 @@ export default function Home() {
                          </span>
                     </div>
                </footer>
+
+               <InfoModel
+                    info="Dear User / Recruiter, if you're seeing this message, our free hosting service may have reached its monthly usage limit. We apologize for the inconvenience. Please visit our GitHub repository to explore the source code and learn more about this project. Thank you for your time and understanding."
+                    isShown={showModal}
+               />
           </div>
      );
 }

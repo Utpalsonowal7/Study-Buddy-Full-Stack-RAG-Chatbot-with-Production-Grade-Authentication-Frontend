@@ -7,6 +7,7 @@ import {
      FiMessageSquare,
      FiPlus,
      FiUpload,
+     FiGithub,
 } from "react-icons/fi";
 import { useAuth } from "../hooks/useAuth";
 import { getStudyData } from "../services/rag";
@@ -115,6 +116,9 @@ export default function Dashboard() {
                          >
                               Retry
                          </button>
+                         <a href="https://l.utpx.in/stdy-git">
+                              <FiGithub />
+                         </a>
                     </div>
                )}
                <section className="mt-9 grid gap-4 sm:grid-cols-3">

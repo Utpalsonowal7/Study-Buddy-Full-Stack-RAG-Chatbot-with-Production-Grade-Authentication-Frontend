@@ -22,7 +22,7 @@ export default function Login() {
 
      const startSocialLogin = (provider: "google" | "github") => {
           if (!backendUrl) {
-               setError("Set VITE_BACKEND_URL to use social sign-in.");
+               setError("Something went");
                return;
           }
           window.location.assign(`${backendUrl}/auth/${provider}`);

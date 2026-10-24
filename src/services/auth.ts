@@ -31,7 +31,7 @@ export function getApiErrorMessage(error: unknown, fallback: string): string {
                if (messages) return messages;
           }
           if (!error.response)
-               return "The API could not be reached. Check the backend, VITE_BACKEND_URL, and credentialed CORS settings.";
+               return "Due to the limition of developer resources, the free service may consume for the month, hope we will understand. Please prefer the github for the project structure and code. Thank you for your understanding.";
      }
      if (error instanceof TypeError && error.message.toLowerCase().includes("fetch")) {
           return "The API could not be reached. Check the backend, VITE_BACKEND_URL, and credentialed CORS settings.";
