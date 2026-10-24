@@ -205,13 +205,13 @@ export default function Home() {
 
                          timer = setTimeout(() => {
                               setShowModal(false);
-                         }, 5000);
+                         }, 8000);
                     }
                } catch (error) {
                     setShowModal(true);
                     timer = setTimeout(() => {
                          setShowModal(false);
-                    }, 5000);
+                    }, 8000);
                }
           }
 
